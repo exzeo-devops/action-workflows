@@ -1,6 +1,7 @@
 name: Automatic Rebase
 
-on: workflow_call
+on:
+  workflow_call:
 
 jobs:
   rebase:
