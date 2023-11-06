@@ -22,10 +22,10 @@ runs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: List
+    - name: Install dependencies
       shell: bash
       run: |
-        make
+        ls -al
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@master
@@ -38,12 +38,11 @@ runs:
       id: make-test
       shell: bash
       run: |
-        make -q -n test > /dev/null 2>&1
+        make -q -n test
       continue-on-error: true
 
     - name: Run tests
-      # if: steps.make-test.outcome == 'success'
+      if: steps.make-test.outcome == 'success'
       shell: bash
       run: |
-        echo "${{ steps.make-test }}"        
         make test
