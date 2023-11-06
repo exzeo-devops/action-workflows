@@ -1,12 +1,12 @@
 ## Example usage
 
 ```
-name: Deploy Serverless
+name: Assume Role
 
 on: [push]
 
 jobs:
-  deploy:
+  example:
     runs-on: ubuntu-latest
 
     # This is required to get id-token for OIDC provider
@@ -18,8 +18,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Deploy Serverless
-        uses: exzeo-devops/action-workflows/.github/actions/deploy-serverless@main
+      - name: Assume Role
+        uses: exzeo-devops/action-workflows/.github/actions/aws-assume-role@main
         with:
           role-arn: "arn:aws:iam::123456789012:role/customRole"
           audience: "test"
