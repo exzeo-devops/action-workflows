@@ -26,6 +26,7 @@ runs:
       shell: bash
       run: |
         ls -al
+        make
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@master
