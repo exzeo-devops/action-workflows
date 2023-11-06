@@ -8,6 +8,11 @@ inputs:
     required: true
     default: "18.x"
 
+  run-install:
+    description: "Whether to run npm ci"
+    required: true
+    default: "false"
+
 runs:
   using: "composite"
   steps:
@@ -20,6 +25,7 @@ runs:
         node-version: ${{ inputs.node-version }}
 
     - name: Run 'npm install'
+      if: inputs.run-install == 'true'
       shell: bash
       run: npm ci
 
