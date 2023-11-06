@@ -25,7 +25,6 @@ runs:
     - name: List
       shell: bash
       run: |
-        ls -al
         make
 
     - name: Configure AWS credentials
