@@ -37,7 +37,8 @@ runs:
       continue-on-error: true
 
     - name: Run tests
-      if: steps.make-test.outcome == 'success'
+      # if: steps.make-test.outcome == 'success'
       shell: bash
       run: |
+        echo "${{ steps.make-test.outcome }}"        
         make test
