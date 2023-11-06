@@ -30,11 +30,14 @@ runs:
         aws-region: ${{ inputs.region }}
 
     - name: Check if "make test" exists
+      id: make-test
       shell: bash
       run: |
         make -q -n test > /dev/null 2>&1
-    
-    - name: Test
+      continue-on-error: true
+
+    - name: Run tests
+      if: steps.make-test.outcome == 'success'
       shell: bash
       run: |
         make test
