@@ -28,8 +28,13 @@ runs:
         audience: ${{ inputs.audience }}
         role-to-assume: ${{ inputs.role-arn }}
         aws-region: ${{ inputs.region }}
+
+    - name: Check if "make test" exists
+      shell: bash
+      run: |
+        make -q -n test > /dev/null 2>&1
     
     - name: Test
       shell: bash
       run: |
-        aws s3 ls
+        make test
