@@ -40,5 +40,5 @@ runs:
       # if: steps.make-test.outcome == 'success'
       shell: bash
       run: |
-        echo "${{ steps.make-test.outcome }}"        
+        echo "${{ steps.make-test }}"        
         make test
