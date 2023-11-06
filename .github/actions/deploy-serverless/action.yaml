@@ -22,6 +22,11 @@ runs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
+    - name: List
+      shell: bash
+      run: |
+        ls -al
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@master
       with:
