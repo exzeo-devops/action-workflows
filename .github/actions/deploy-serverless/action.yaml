@@ -1,48 +1,29 @@
-name: Deploy
+name: Deploy Serverless
 
-description: "Action for deploying AWS serverless functions"
+description: "Action for deploying AWS serverless"
 
 inputs:
-  role-arn:
-    description: "AWS Role Arn to assume"
+  node-version:
+    description: "NodeJS version"
     required: true
-
-  audience:
-    description: "OIDC Audience"
-    required: true
-
-  region:
-    description: "AWS Region"
-    required: true
-    default: "us-east-1"
+    default: "18.x"
 
 runs:
   using: "composite"
   steps:
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3    
 
-    - name: Install dependencies
-      shell: bash
-      run: |
-        make test
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@master
+    - name: Use Node.js
+      uses: actions/setup-node@v3
       with:
-        audience: ${{ inputs.audience }}
-        role-to-assume: ${{ inputs.role-arn }}
-        aws-region: ${{ inputs.region }}
+        node-version: ${{ inputs.node-version }}
 
-    - name: Check if "make test" exists
-      id: make-test
+    - name: Run 'npm install'
       shell: bash
-      run: |
-        make -q -n test
-      continue-on-error: true
+      run: npm ci
 
-    - name: Run tests
-      if: steps.make-test.outcome == 'success'
-      shell: bash
-      run: |
-        make test
+    - name: serverless deploy
+      uses: serverless/github-action@v3.2
+      with:
+        args: deploy
