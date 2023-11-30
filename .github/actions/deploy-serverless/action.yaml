@@ -30,6 +30,12 @@ runs:
       run: npm ci
 
     - name: serverless deploy
-      uses: serverless/github-action@v3.2
-      with:
-        args: deploy
+      shell: bash
+      run: |
+        aws s3 ls
+        
+
+    # - name: serverless deploy
+    #   uses: serverless/github-action@v3.2
+    #   with:
+    #     args: deploy
