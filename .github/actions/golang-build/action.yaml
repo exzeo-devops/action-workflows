@@ -42,7 +42,7 @@ runs:
 
     - name: Test
       shell: bash
-      if: inputs.test == "true"
+      if: inputs.test == 'true'
       run: gotestsum --format testdox --no-color --format-hide-empty-pkg
 
     - name: Build
