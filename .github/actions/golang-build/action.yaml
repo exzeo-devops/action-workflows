@@ -36,9 +36,25 @@ runs:
         go mod tidy
         go mod vendor
 
-    - name: Install gotestsum
+    - name: Install required dependencies
       shell: bash
-      run : go install gotest.tools/gotestsum@latest
+      run: |
+        go install github.com/securego/gosec/v2/cmd/gosec@latest
+        go install gotest.tools/gotestsum@latest
+        go install golang.org/x/vuln/cmd/govulncheck@latest
+        go install github.com/zricethezav/gitleaks/v8@latest
+
+    - name: Run gitleaks (Scan for hard-coded secrets in git repository)
+      shell: bash
+      run: gitleaks detect --verbose
+
+    - name: Run GoSec (Golang code issues)
+      shell: bash
+      run: gosec ./...
+
+    - name: Run govulncheck (Golang CLI issues)
+      shell: bash
+      run: govulncheck ./...
 
     - name: Test
       shell: bash
