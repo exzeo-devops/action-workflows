@@ -38,11 +38,6 @@ jobs:
       #   with:
       #     go-version: ${{ inputs.go-version }}
 
-      - uses: trstringer/manual-approval@v1
-        if: ${{ inputs.environment == 'Live' }}
-        with:
-          secret: ${{ github.TOKEN }}
-
       - name: Test Run
         run: |
           echo "Environment: ${{ inputs.environment }}"
