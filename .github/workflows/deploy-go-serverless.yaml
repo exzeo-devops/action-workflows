@@ -41,7 +41,7 @@ jobs:
       - name: Test Run
         run: |
           echo "Environment: ${{ inputs.environment }}"
-          echo "Role ARN: ${{ inputs.role-arn }}"
+          echo "Role ARN: ${{ secrets.ROLE_ARN }}"
 
       - name: Install dependencies
         run: | 
@@ -76,7 +76,7 @@ jobs:
         # if: ${{ github.ref == 'refs/heads/main' }}
         uses: exzeo-devops/action-workflows/.github/actions/aws-assume-role@main
         with:
-          role-arn: ${{ inputs.role-arn }}
+          role-arn: ${{ secrets.ROLE_ARN }}
           audience: ${{ secrets.AWS_OIDC_AUDIENCE }}    
 
       # - name: Deploy Serverless
