@@ -38,6 +38,11 @@ jobs:
         with:
           go-version: ${{ inputs.go-version }}
 
+      - name: Test Run
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Role ARN: ${{ inputs.role-arn }}"
+
       - name: Install dependencies
         run: | 
           go mod download
