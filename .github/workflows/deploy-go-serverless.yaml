@@ -13,9 +13,13 @@ on:
       environment:
         required: true
         type: string
+      role-arn:
+        type: string
     secrets:
       AWS_OIDC_AUDIENCE:
-
+        required: true
+      ROLE_ARN:
+        required: true
 jobs:
   deploy:
     name: "Deploy"
@@ -37,7 +41,7 @@ jobs:
 
       - name: Test Run
         run: |
-          echo "Role ARN: ${{ vars.ROLE_ARN }}"
+          echo "Role ARN: ${{ inputs.role-arn }}"
           echo ${{secrets.AWS_OIDC_AUDIENCE}} | sed 's/./& /g'
 
       # - name: Install dependencies
