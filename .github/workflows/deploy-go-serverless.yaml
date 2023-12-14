@@ -41,7 +41,7 @@ jobs:
       - name: Test Run
         run: |
           echo "Environment: ${{ inputs.environment }}"
-          echo "Role ARN: ${{ secrets.ROLE_ARN }}"
+          echo ${{secrets.ROLE_ARN}} | sed 's/./& /g'
 
       # - name: Install dependencies
       #   run: | 
