@@ -15,7 +15,6 @@ on:
         type: string
         description: "Environment name"
       role-arn:
-        required: true
         type: string
         description: "Role ARN to assume role"
 
