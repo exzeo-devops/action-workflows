@@ -10,20 +10,13 @@ on:
       build-args:
         type: string
         description: "Any go build args"
-      environment:
-        required: true
-        type: string
-        description: "Environment name"
       role-arn:
         type: string
         description: "Role ARN to assume role"
-    secrets:
-      ROLE_ARN:
 jobs:
   deploy:
     name: "Deploy"
     runs-on: self-hosted
-    environment: "${{ inputs.environment }}"
 
     permissions:
       id-token: write
@@ -40,8 +33,7 @@ jobs:
 
       - name: Test Run
         run: |
-          echo "Environment: ${{ inputs.environment }}"
-          echo ${{secrets.ROLE_ARN}} | sed 's/./& /g'
+          echo "Role ARN: ${{ inputs.role-arn }}"
 
       # - name: Install dependencies
       #   run: | 
