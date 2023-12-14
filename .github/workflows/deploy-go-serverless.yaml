@@ -11,6 +11,7 @@ on:
         type: string
         description: "Any go build args"
       environment:
+        required: true
         type: string
         description: "Environment name"
       role-arn:
