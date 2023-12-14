@@ -4,7 +4,6 @@ on:
   workflow_call:
     inputs:
       go-version:
-        required: true
         type: string
         description: "Version of golang"
         default: "1.21.x"
