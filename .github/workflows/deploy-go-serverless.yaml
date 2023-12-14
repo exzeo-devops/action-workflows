@@ -75,7 +75,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: exzeo-devops/action-workflows/.github/actions/aws-assume-role@main
         with:
-          role-arn: ${{ input.role-arn }}
+          role-arn: ${{ inputs.role-arn }}
           audience: ${{ secrets.AWS_OIDC_AUDIENCE }}    
 
       # - name: Deploy Serverless
