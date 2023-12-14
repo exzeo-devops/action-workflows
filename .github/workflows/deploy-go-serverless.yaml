@@ -17,7 +17,8 @@ on:
       role-arn:
         type: string
         description: "Role ARN to assume role"
-
+    secrets:
+      ROLE_ARN:
 jobs:
   deploy:
     name: "Deploy"
