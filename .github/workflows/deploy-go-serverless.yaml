@@ -16,9 +16,13 @@ on:
     secrets:
       AWS_OIDC_AUDIENCE:
         required: true
+
+env:
+  ROLE_ARN: "${{ vars.ROLE_ARN }}"
+
 jobs:
   deploy:
-    name: "Deploy"
+    name: "Deploy Serverless"
     runs-on: self-hosted
     environment: "${{ inputs.environment }}"
 
@@ -35,47 +39,42 @@ jobs:
         with:
           go-version: ${{ inputs.go-version }}
 
-      - name: Test Run
+      - name: Install dependencies
+        run: | 
+          go mod download
+          go mod tidy
+          go mod vendor
+
+      - name: Install required dependencies
         run: |
-          echo "Role ARN: ${{ vars.ROLE_ARN }}"
-          echo ${{secrets.AWS_OIDC_AUDIENCE}} | sed 's/./& /g'
+          go install github.com/securego/gosec/v2/cmd/gosec@55d79496019a560e16e73e1948dee20a1fad631a # v2.18.2
+          go install gotest.tools/gotestsum@ec99a250836f069a524bb9d9b5de0a7a96334ea7 # v1.11.0
+          go install golang.org/x/vuln/cmd/govulncheck@da4b74a5408a0116e9a2dde953659a7b0956dc56 # v1.0.1
+          go install github.com/zricethezav/gitleaks/v8@dab7d0292ad7ebc52c7adfcad755f92e2f7c9a9a # v8.18.1
 
-      # - name: Install dependencies
-      #   run: | 
-      #     go mod download
-      #     go mod tidy
-      #     go mod vendor
+      - name: Run gitleaks (Scan for hard-coded secrets in git repository)
+        run: gitleaks detect --verbose
 
-      # - name: Install required dependencies
-      #   run: |
-      #     go install github.com/securego/gosec/v2/cmd/gosec@55d79496019a560e16e73e1948dee20a1fad631a # v2.18.2
-      #     go install gotest.tools/gotestsum@ec99a250836f069a524bb9d9b5de0a7a96334ea7 # v1.11.0
-      #     go install golang.org/x/vuln/cmd/govulncheck@da4b74a5408a0116e9a2dde953659a7b0956dc56 # v1.0.1
-      #     go install github.com/zricethezav/gitleaks/v8@dab7d0292ad7ebc52c7adfcad755f92e2f7c9a9a # v8.18.1
+      - name: Run GoSec (Golang code issues)
+        run: gosec ./...
 
-      # - name: Run gitleaks (Scan for hard-coded secrets in git repository)
-      #   run: gitleaks detect --verbose
+      - name: Run govulncheck (Golang CLI issues)
+        run: govulncheck ./...
 
-      # - name: Run GoSec (Golang code issues)
-      #   run: gosec ./...
+      - name: Test
+        run: gotestsum --format github-actions --no-color --format-hide-empty-pkg
 
-      # - name: Run govulncheck (Golang CLI issues)
-      #   run: govulncheck ./...
+      - name: Build
+        shell: bash
+        run: go build ${{ inputs.build-args }}
 
-      # - name: Test
-      #   run: gotestsum --format github-actions --no-color --format-hide-empty-pkg
+      - name: Assume Role
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: exzeo-devops/action-workflows/.github/actions/aws-assume-role@main
+        with:
+          role-arn: ${{ env.ROLE_ARN }}
+          audience: ${{ secrets.AWS_OIDC_AUDIENCE }}    
 
-      # - name: Build
-      #   shell: bash
-      #   run: go build ${{ inputs.build-args }}
-
-      # - name: Assume Role
-      #   # if: ${{ github.ref == 'refs/heads/main' }}
-      #   uses: exzeo-devops/action-workflows/.github/actions/aws-assume-role@main
-      #   with:
-      #     role-arn: ${{ vars.ROLE_ARN }}
-      #     audience: ${{ secrets.AWS_OIDC_AUDIENCE }}    
-
-      # - name: Deploy Serverless
-      #   if: ${{ github.ref == 'refs/heads/main' }}
-      #   uses: exzeo-devops/action-workflows/.github/actions/deploy-serverless@main
+      - name: Deploy Serverless
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: exzeo-devops/action-workflows/.github/actions/deploy-serverless@main
