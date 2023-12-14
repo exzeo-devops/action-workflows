@@ -13,6 +13,8 @@ on:
       environment:
         required: true
         type: string
+    secrets:
+      AWS_OIDC_AUDIENCE:
 
 jobs:
   deploy:
