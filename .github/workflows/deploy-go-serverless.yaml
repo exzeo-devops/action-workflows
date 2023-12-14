@@ -18,8 +18,6 @@ on:
     secrets:
       AWS_OIDC_AUDIENCE:
         required: true
-      ROLE_ARN:
-        required: true
 jobs:
   deploy:
     name: "Deploy"
