@@ -5,23 +5,8 @@ description: "Action for validating AWS serverless"
 runs:
   using: "composite"
   steps:
-    - name: Install Node.js
-      uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
-      with:
-        node-version: "20.x"
-
-    - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
-      with:
-        python-version: "3.9"
-
-    - name: Install Cloudformation Linter
-      shell: bash
-      run: |
-        pip install cfn-lint cfn-lint-serverless
-
-    - name: Install Serverless Framework
-      shell: bash
-      run: npm install -g serverless
+    - name: Install required dependencies
+      uses: exzeo-devops/action-workflows/.github/actions/serverless-install@DOPS-5528
 
     - name: serverless package
       shell: bash
