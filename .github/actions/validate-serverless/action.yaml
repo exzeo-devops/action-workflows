@@ -28,10 +28,13 @@ runs:
       run: |
         pip install cfn-lint cfn-lint-serverless
 
+    - name: Install Serverless Framework
+      shell: bash
+      run: npm install -g serverless
+
     - name: serverless package
-      uses: serverless/github-action@v3.2
-      with:
-        args: package
+      shell: bash
+      run: sls package
 
     - name: Run cf-lint
       shell: bash
