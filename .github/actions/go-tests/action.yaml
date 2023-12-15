@@ -28,8 +28,16 @@ runs:
         fi
 
     - name: Test Summary
-      uses: test-summary/action@v1
+      uses: test-summary/action@fee35d7df20790255fe6aa92cf0f6d28092ecf2f # v2.2
       with:
         paths: |
           report.xml            
+        output: test-summary.md
       if: always()        
+
+    - name: Upload test summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-summary
+        path: test-summary.md
+      if: always()      
