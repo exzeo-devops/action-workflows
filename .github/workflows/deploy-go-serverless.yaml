@@ -41,9 +41,13 @@ jobs:
 
       - name: Install dependencies
         run: | 
-          go mod download
-          go mod tidy
-          go mod vendor
+          if make -n init >/dev/null 2>&1; then
+            make init
+          else
+            go mod download
+            go mod tidy
+            go mod vendor
+          fi            
 
       - name: Install required dependencies
         run: |
@@ -61,12 +65,26 @@ jobs:
       - name: Run govulncheck (Golang CLI issues)
         run: govulncheck ./...
 
-      - name: Test
-        run: gotestsum --format github-actions --no-color --format-hide-empty-pkg
+      - name: Run unit tests
+        run: |
+          gotestsum --format github-actions --no-color --format-hide-empty-pkg
 
-      - name: Build
-        shell: bash
-        run: go build ${{ inputs.build-args }}
+      - name: Validate serverless configuration
+        uses: exzeo-devops/action-workflows/.github/actions/validate-serverless@main
+
+      - name: Build golang
+        run: |
+          if make -n build >/dev/null 2>&1; then
+            make build
+          else
+            go build ${{ inputs.build-args }}
+          fi                  
+
+      - name: Run pre-deployment tests
+        run: |
+          if make -n pre-deploy-test >/dev/null 2>&1; then
+            make pre-deploy-test
+          fi
 
       - name: Assume Role
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -78,3 +96,9 @@ jobs:
       - name: Deploy Serverless
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: exzeo-devops/action-workflows/.github/actions/deploy-serverless@main
+
+      - name: Post-Deployment Testing
+        run: |
+          if make -n post-deploy-test >/dev/null 2>&1; then
+            make post-deploy-test
+          fi
