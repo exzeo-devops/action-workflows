@@ -70,7 +70,7 @@ jobs:
           gotestsum --format github-actions --no-color --format-hide-empty-pkg
 
       - name: Validate serverless configuration
-        uses: exzeo-devops/action-workflows/.github/actions/validate-serverless@main
+        uses: exzeo-devops/action-workflows/.github/actions/validate-serverless@DOPS-5528
 
       - name: Build golang
         run: |
