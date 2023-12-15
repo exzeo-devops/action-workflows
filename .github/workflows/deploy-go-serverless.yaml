@@ -84,21 +84,15 @@ jobs:
           fi
 
       - name: Assume Role
-        uses: exzeo-devops/action-workflows/.github/actions/aws-assume-role@DOPS-5528
+        uses: exzeo-devops/action-workflows/.github/actions/aws-assume-role@main
+        timeout-minutes: 2 # should never take this long, if it times out, something is wrong
         with:
           role-arn: ${{ env.ROLE_ARN }}
           audience: ${{ secrets.AWS_OIDC_AUDIENCE }}    
 
       - name: Validate serverless configuration
-        uses: exzeo-devops/action-workflows/.github/actions/validate-serverless@DOPS-5528
-        timeout-minutes: 5
+        uses: exzeo-devops/action-workflows/.github/actions/validate-serverless@main
 
       - name: Deploy Serverless
         if: ${{ github.ref == 'refs/heads/main' }}
-        uses: exzeo-devops/action-workflows/.github/actions/deploy-serverless@DOPS-5528
-
-      - name: Post-Deployment Testing
-        run: |
-          if make -n post-deploy-test >/dev/null 2>&1; then
-            make post-deploy-test
-          fi
+        uses: exzeo-devops/action-workflows/.github/actions/deploy-serverless@main

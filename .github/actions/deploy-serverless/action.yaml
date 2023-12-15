@@ -49,3 +49,10 @@ runs:
         else
           sls deploy ${{ inputs.deploy-args }}
         fi
+
+    - name: Post-Deployment Testing
+      shell: bash
+      run: |
+        if make -n post-deploy-test >/dev/null 2>&1; then
+          make post-deploy-test
+        fi        
