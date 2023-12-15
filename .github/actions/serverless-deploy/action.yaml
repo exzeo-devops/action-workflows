@@ -17,6 +17,11 @@ runs:
     - name: Install required dependencies
       uses: exzeo-devops/action-workflows/.github/actions/serverless-install@DOPS-5528
 
+    - name: Check
+      shell: bash
+      run: |
+        ls bin/sem
+
     # - name: Deploy serverless
     #   shell: bash
     #   run: |
