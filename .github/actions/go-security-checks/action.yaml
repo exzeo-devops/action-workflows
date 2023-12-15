@@ -1,0 +1,30 @@
+name: Golang Security Checks
+
+description: "Action for checking golang security"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install required dependencies
+      shell: bash
+      run: |
+        go install github.com/securego/gosec/v2/cmd/gosec@55d79496019a560e16e73e1948dee20a1fad631a # v2.18.2
+        go install golang.org/x/vuln/cmd/govulncheck@da4b74a5408a0116e9a2dde953659a7b0956dc56 # v1.0.1
+        go install github.com/zricethezav/gitleaks/v8@dab7d0292ad7ebc52c7adfcad755f92e2f7c9a9a # v8.18.1
+
+    - name: Run gitleaks (Scan for hard-coded secrets in git repository)
+      shell: bash
+      run: gitleaks detect --verbose
+
+    - uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+
+    - name: Run GoSec (Golang code issues)
+      shell: bash
+      run: gosec ./...
+
+    - name: Run govulncheck (Golang CLI issues)
+      shell: bash
+      run: govulncheck ./...
