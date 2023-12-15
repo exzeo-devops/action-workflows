@@ -91,6 +91,7 @@ jobs:
 
       - name: Validate serverless configuration
         uses: exzeo-devops/action-workflows/.github/actions/validate-serverless@DOPS-5528
+        timeout-minutes: 5
 
       - name: Deploy Serverless
         if: ${{ github.ref == 'refs/heads/main' }}
