@@ -3,11 +3,6 @@ name: Deploy Serverless
 description: "Action for deploying AWS serverless"
 
 inputs:
-  node-version:
-    description: "NodeJS version"
-    required: true
-    default: "latest"
-
   run-install:
     description: "Whether to run npm ci"
     required: true
@@ -24,8 +19,6 @@ runs:
 
     - name: Use Node.js
       uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
-      with:
-        node-version: ${{ inputs.node-version }}
 
     - name: Run 'npm install'
       if: inputs.run-install == 'true'

@@ -2,12 +2,6 @@ name: Validate Serverless
 
 description: "Action for validating AWS serverless"
 
-inputs:
-  node-version:
-    description: "NodeJS version"
-    required: true
-    default: "latest"
-
 runs:
   using: "composite"
   steps:
@@ -16,8 +10,6 @@ runs:
 
     - name: Install Node.js
       uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
-      with:
-        node-version: ${{ inputs.node-version }}
 
     - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
       with:
