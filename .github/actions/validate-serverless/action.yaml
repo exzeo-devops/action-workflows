@@ -6,7 +6,7 @@ inputs:
   node-version:
     description: "NodeJS version"
     required: true
-    default: "lts"
+    default: "latest"
 
 runs:
   using: "composite"

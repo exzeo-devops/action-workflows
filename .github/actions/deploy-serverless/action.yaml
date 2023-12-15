@@ -6,7 +6,7 @@ inputs:
   node-version:
     description: "NodeJS version"
     required: true
-    default: "lts"
+    default: "latest"
 
   run-install:
     description: "Whether to run npm ci"
