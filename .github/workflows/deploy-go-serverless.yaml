@@ -84,7 +84,6 @@ jobs:
           fi
 
       - name: Assume Role
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: exzeo-devops/action-workflows/.github/actions/aws-assume-role@DOPS-5528
         with:
           role-arn: ${{ env.ROLE_ARN }}
