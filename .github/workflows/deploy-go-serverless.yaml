@@ -69,9 +69,6 @@ jobs:
         run: |
           gotestsum --format github-actions --no-color --format-hide-empty-pkg
 
-      - name: Validate serverless configuration
-        uses: exzeo-devops/action-workflows/.github/actions/validate-serverless@DOPS-5528
-
       - name: Build golang
         run: |
           if make -n build >/dev/null 2>&1; then
@@ -92,6 +89,9 @@ jobs:
         with:
           role-arn: ${{ env.ROLE_ARN }}
           audience: ${{ secrets.AWS_OIDC_AUDIENCE }}    
+
+      - name: Validate serverless configuration
+        uses: exzeo-devops/action-workflows/.github/actions/validate-serverless@DOPS-5528
 
       - name: Deploy Serverless
         if: ${{ github.ref == 'refs/heads/main' }}
