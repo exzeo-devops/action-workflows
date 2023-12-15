@@ -8,8 +8,6 @@ runs:
     - name: Install required dependencies
       shell: bash
       run: |
-        go install github.com/securego/gosec/v2/cmd/gosec@55d79496019a560e16e73e1948dee20a1fad631a # v2.18.2
-        go install golang.org/x/vuln/cmd/govulncheck@da4b74a5408a0116e9a2dde953659a7b0956dc56 # v1.0.1
         go install github.com/zricethezav/gitleaks/v8@dab7d0292ad7ebc52c7adfcad755f92e2f7c9a9a # v8.18.1
 
     - name: Run gitleaks (Scan for hard-coded secrets in git repository)
@@ -22,9 +20,9 @@ runs:
     #     GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
 
     - name: Run GoSec (Golang code issues)
-      shell: bash
-      run: gosec ./...
+      uses: securego/gosec@55d79496019a560e16e73e1948dee20a1fad631a # v2.18.2
+      with:
+        args: ./...
 
     - name: Run govulncheck (Golang CLI issues)
-      shell: bash
-      run: govulncheck ./...
+      uses: golang/govulncheck-action@7da72f730e37eeaad891fcff0a532d27ed737cd4 # v1.0.1
