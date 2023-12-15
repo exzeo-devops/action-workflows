@@ -8,6 +8,7 @@ runs:
     - name: Install required dependencies
       shell: bash
       run: |
+        go install golang.org/x/vuln/cmd/govulncheck@da4b74a5408a0116e9a2dde953659a7b0956dc56 # v1.0.1
         go install github.com/zricethezav/gitleaks/v8@dab7d0292ad7ebc52c7adfcad755f92e2f7c9a9a # v8.18.1
 
     - name: Run gitleaks (Scan for hard-coded secrets in git repository)
@@ -25,4 +26,5 @@ runs:
         args: ./...
 
     - name: Run govulncheck (Golang CLI issues)
-      uses: golang/govulncheck-action@7da72f730e37eeaad891fcff0a532d27ed737cd4 # v1.0.1
+      shell: bash
+      run: govulncheck ./...
