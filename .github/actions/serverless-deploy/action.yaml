@@ -10,7 +10,7 @@ runs:
   using: "composite"
   steps:
     - name: Install required dependencies
-      uses: exzeo-devops/action-workflows/.github/actions/serverless-install@DOPS-5528
+      uses: exzeo-devops/action-workflows/.github/actions/serverless-install@main
 
     - name: Deploy serverless
       shell: bash

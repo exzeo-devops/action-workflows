@@ -2,11 +2,6 @@ name: Golang Testing
 
 description: "Action for running golang testing"
 
-inputs:
-  go-version:
-    description: "Version of golang"
-    default: "1.21.x"
-
 runs:
   using: "composite"
   steps:
