@@ -2,12 +2,7 @@ name: Deploy Serverless
 
 description: "Action for deploying AWS serverless"
 
-inputs:
-  run-install:
-    description: "Whether to run npm ci"
-    required: true
-    default: "false"
-  
+inputs: 
   deploy-args:
     description: "Additional args to deploy"
 
@@ -17,19 +12,14 @@ runs:
     - name: Install required dependencies
       uses: exzeo-devops/action-workflows/.github/actions/serverless-install@DOPS-5528
 
-    - name: Check
+    - name: Deploy serverless
       shell: bash
       run: |
-        ls bin/sem
-
-    # - name: Deploy serverless
-    #   shell: bash
-    #   run: |
-    #     if make -n deploy >/dev/null 2>&1; then
-    #       make deploy
-    #     else
-    #       sls deploy ${{ inputs.deploy-args }}
-    #     fi
+        if make -n deploy >/dev/null 2>&1; then
+          make deploy
+        else
+          sls deploy ${{ inputs.deploy-args }}
+        fi
 
     - name: Post-Deployment Testing
       shell: bash
