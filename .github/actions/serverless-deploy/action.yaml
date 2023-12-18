@@ -2,12 +2,7 @@ name: Deploy Serverless
 
 description: "Action for deploying AWS serverless"
 
-inputs:
-  run-install:
-    description: "Whether to run npm ci"
-    required: true
-    default: "false"
-  
+inputs: 
   deploy-args:
     description: "Additional args to deploy"
 
