@@ -1,0 +1,66 @@
+name: Golang
+
+description: "Action for checking golang application"
+
+inputs:
+  version:
+    description: "Golang version"
+    required: true
+    default: "1.21.x"
+
+  test:
+    description: "Whether to run go test"
+    required: true
+    default: "true"
+
+  build-args:
+    description: "Additional args when building"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ inputs.version }}
+
+    - name: Install dependencies
+      shell: bash
+      run: | 
+        go mod download
+        go mod tidy
+        go mod vendor
+
+    - name: Install required dependencies
+      shell: bash
+      run: |
+        go install github.com/securego/gosec/v2/cmd/gosec@latest
+        go install gotest.tools/gotestsum@latest
+        go install golang.org/x/vuln/cmd/govulncheck@latest
+        go install github.com/zricethezav/gitleaks/v8@latest
+
+    - name: Run gitleaks (Scan for hard-coded secrets in git repository)
+      shell: bash
+      run: gitleaks detect --verbose
+
+    - name: Run GoSec (Golang code issues)
+      shell: bash
+      run: gosec ./...
+
+    - name: Run govulncheck (Golang CLI issues)
+      shell: bash
+      run: govulncheck ./...
+
+    - name: Test
+      shell: bash
+      if: inputs.test == 'true'
+      run: gotestsum --format testdox --no-color --format-hide-empty-pkg
+
+    - name: Build
+      shell: bash
+      run: go build ${{ inputs.build-args }}
