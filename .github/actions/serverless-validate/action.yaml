@@ -2,15 +2,37 @@ name: Validate Serverless
 
 description: "Action for validating AWS serverless"
 
+inputs:
+  parameters:
+    description: 'Array of parameters for sls package command'
+    required: true
+    default: []
+
 runs:
   using: "composite"
   steps:
     - name: Install required dependencies
       uses: exzeo-devops/action-workflows/.github/actions/serverless-install@main
 
-    - name: serverless package
+    - name: Construct sls package command
+      id: construct-sls-command
+      run: |
+        params=()
+        for param in "${{ toJson(inputs.parameters) }}"; do
+          # Extract key-value pair from array
+          key="${param%%=*}"
+          value="${param#*=}"
+
+          if [ -n "$value" ]; then
+            params+=( "--param $key=$value" )
+          fi
+        done
+
+        echo "::set-output name=sls-command::sls package ${params[*]}"
+
+    - name: Run sls package command
       shell: bash
-      run: sls package
+      run: ${{ steps.construct-sls-command.outputs.sls-command }}
 
     - name: Run cf-lint
       shell: bash
