@@ -1,0 +1,114 @@
+name: Checks for golang issues
+
+on: 
+  workflow_call:
+    go-version:
+      required: false
+      type: string
+      default: "1.21.x"
+
+    permissions:
+      contents: read    
+
+jobs:
+  security:
+    name: "Checks for security issues"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version-file: .go-version
+
+      - name: Install required dependencies
+        shell: bash
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@da4b74a5408a0116e9a2dde953659a7b0956dc56 # v1.0.1
+          go install github.com/zricethezav/gitleaks/v8@dab7d0292ad7ebc52c7adfcad755f92e2f7c9a9a # v8.18.1
+
+      - name: Run gitleaks (Scan for hard-coded secrets in git repository)
+        shell: bash
+        run: gitleaks detect --verbose
+
+      - name: Run GoSec (Golang code issues)
+        uses: securego/gosec@55d79496019a560e16e73e1948dee20a1fad631a # v2.18.2
+        with:
+          args: ./...
+
+      - name: Run govulncheck (Golang CLI issues)
+        shell: bash
+        run: govulncheck ./...          
+
+  test:
+    name: "Runs golang testing"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version-file: .go-version
+
+      - name: Install dependencies
+        run: make init
+
+      - name: Install required dependencies
+        shell: bash
+        run: go install gotest.tools/gotestsum@ec99a250836f069a524bb9d9b5de0a7a96334ea7 # v1.11.0
+
+      - name: Run unit tests
+        shell: bash
+        run: |
+          gotestsum --format github-actions --no-color --format-hide-empty-pkg --junitfile report.xml
+
+      - name: Run pre-deployment tests
+        shell: bash
+        run: |
+          if make -n pre-deploy-test >/dev/null 2>&1; then
+            make pre-deploy-test
+          fi
+
+      - name: Generate test summary
+        uses: test-summary/action@fee35d7df20790255fe6aa92cf0f6d28092ecf2f # v2.2
+        with:
+          paths: |
+            report.xml            
+        if: always()
+
+  lint:
+    name: "Runs best practices"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version-file: .go-version
+      
+      - name: Analyze with SonarCloud
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=exzeo-devops
+            -Dsonar.verbose=true
+
+      - name: Check go.mod and go.sum tidiness
+        run: |
+          go mod tidy
+          if [ ! -z "$(git status --porcelain go.mod go.sum)" ]; then
+            echo "Need to run 'go mod tidy'";
+            exit 1;
+          fi

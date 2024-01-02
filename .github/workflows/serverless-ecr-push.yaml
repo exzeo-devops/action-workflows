@@ -1,0 +1,59 @@
+name: Test and Deploy Serverless
+
+on: workflow_call
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:  
+
+  deploy:
+    name: "Deploy to Live"
+    runs-on: self-hosted
+    needs: test
+    environment: "Live"
+    # if: ${{ github.ref == 'refs/heads/main' }}
+
+    permissions:
+      id-token: write
+      contents: read    
+    
+    strategy:
+      matrix:
+        go-version: [ "1.21.x" ]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      # - name: Setup Go
+      #   uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+      #   with:
+      #     go-version: ${{ matrix.go-version }}
+
+      - name: Assume Role
+        uses: exzeo-devops/action-workflows/.github/actions/aws-assume-role@main
+        with:
+          role-arn: "${{ vars.ROLE_ARN }}"
+          audience: "${{ secrets.AWS_OIDC_AUDIENCE }}"
+
+      # - name: Deploy
+      #   uses: exzeo-devops/action-workflows/.github/actions/serverless-deploy@main
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push the image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: "ssl-expiration-monitor"
+          IMAGE_TAG: latest
+        run: |
+          # Build a docker container and push it to ECR 
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          echo "Pushing image to ECR..."
+          docker --debug push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"      
