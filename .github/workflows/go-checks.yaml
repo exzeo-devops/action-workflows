@@ -2,10 +2,6 @@ name: Checks for golang issues
 
 on: 
   workflow_call:
-    go-version:
-      required: false
-      type: string
-      default: "1.21.x"
 
 jobs:
   security:
