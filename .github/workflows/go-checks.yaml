@@ -88,17 +88,6 @@ jobs:
         with:
           go-version-file: .go-version
       
-      - name: Analyze with SonarCloud
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.organization=exzeo-devops
-            -Dsonar.projectKey=exzeo-devops_${{ github.event.repository.name }}
-            -Dsonar.verbose=true
-
       - name: Check go.mod and go.sum tidiness
         run: |
           go mod tidy
