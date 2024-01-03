@@ -36,7 +36,7 @@ jobs:
       - name: Validate environment
         run: |
           if [ -z "${{ vars.ROLE_ARN }}" ]; then
-            echo "ROLE_ARN needs to be provided in the environment: ${{ inputs.environment }}";
+            echo "Variable 'ROLE_ARN' needs to be provided in the environment: ${{ inputs.environment }}";
             exit 1;                    
           fi
 
