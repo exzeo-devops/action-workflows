@@ -20,7 +20,7 @@ jobs:
 
   deploy:
     name: "Deploying to ${{ inputs.environment }}"
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     environment: "${{ inputs.environment }}"
     # if: ${{ github.ref == 'refs/heads/main' }}
 
