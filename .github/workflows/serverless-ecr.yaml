@@ -60,6 +60,12 @@ jobs:
         run: |
           # Build a docker container and push it to ECR 
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-      #     echo "Pushing image to ECR..."
-      #     docker --debug push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"      
+          echo "Pushing image to ECR..."
+          docker --debug push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$REGISTRY/$REPOSITORY:$IMAGE_TAG"      
+
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@a2c70ae13a881faf2b4953baaa9e49731997ab36 # v1.64.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: false      
