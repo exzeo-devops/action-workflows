@@ -33,6 +33,13 @@ jobs:
         with:
           go-version-file: .go-version
 
+      - name: Validate environment
+        run: |
+          if [ -z "${{ vars.ROLE_ARN }}" ]; then
+            echo "ROLE_ARN needs to be provided in the environment: ${{ inputs.environment }}";
+            exit 1;                    
+          fi
+
       - name: Assume Role
         uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4.0.1      
         with:
