@@ -1,0 +1,119 @@
+name: Checks for terraform issues
+
+on: 
+  workflow_call:
+    inputs:
+      terraform-path:
+        type: string
+        required: true
+        description: "Path to terraform files"
+    secrets:
+      TERRAFORM_API_TOKEN:
+        required: true
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:  
+  list-workspaces:
+    name: "Lookup workspaces"
+    runs-on: ubuntu-latest
+
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - id: set-matrix
+        working-directory: "${{ inputs.terraform-path }}"
+        run: |
+          echo "matrix=$(ls workspaces/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+  plan:
+    name: "Runs terraform plan"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    strategy:
+      matrix:
+        workspace: ${{ fromJson(needs.list-workspaces.outputs.matrix) }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TERRAFORM_API_TOKEN }}
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: "${{ inputs.terraform-path }}/workspaces/${{ matrix.workspace }}"
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: "${{ inputs.terraform-path }}/workspaces/${{ matrix.workspace }}"
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: true
+        working-directory: "${{ inputs.terraform-path }}/workspaces/${{ matrix.workspace }}"
+
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+  lint:
+    name: "Runs best practices"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    
+      - name: Check terraform format
+        run: |
+          go mod tidy
+          if [[ -n "$(terraform fmt -check -recursive -diff)" ]]; then
+            echo "Some terraform files need to be formatted. Run 'terraform fmt -recursive' to fix them.";
+            exit 1;
+          fi
