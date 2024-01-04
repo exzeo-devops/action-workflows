@@ -43,7 +43,9 @@ jobs:
 
       - uses: exzeo-devops/action-workflows/.github/actions/action-failure-notification@main
         if: ${{ github.ref == 'refs/heads/main' }}
-
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
   test:
     name: "Runs golang testing"
     runs-on: ubuntu-latest
@@ -85,6 +87,8 @@ jobs:
 
       - uses: exzeo-devops/action-workflows/.github/actions/action-failure-notification@main
         if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   lint:
     name: "Runs best practices"
@@ -109,3 +113,5 @@ jobs:
 
       - uses: exzeo-devops/action-workflows/.github/actions/action-failure-notification@main
         if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -2,6 +2,11 @@ name: Send failure notification
 
 description: "Action for sending failure notification"
 
+inputs:
+  slack-webhook-url:
+    description: "Slack webhook url"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -12,4 +17,4 @@ runs:
         status: ${{ job.status }}
         notify_when: 'failure'
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}

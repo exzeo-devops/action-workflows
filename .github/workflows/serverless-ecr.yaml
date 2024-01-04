@@ -65,3 +65,5 @@ jobs:
 
       - uses: exzeo-devops/action-workflows/.github/actions/action-failure-notification@main
         if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}        
