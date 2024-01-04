@@ -11,11 +11,6 @@ on:
       AWS_OIDC_AUDIENCE:
         required: true
 
-
-concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
-  cancel-in-progress: true
-
 jobs:  
 
   deploy:
@@ -61,7 +56,6 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           echo "Pushing image to ECR..."
           docker --debug push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$REGISTRY/$REPOSITORY:$IMAGE_TAG"      
 
       - name: Bump version and push tag
         uses: mathieudutour/github-tag-action@fcfbdceb3093f6d85a3b194740f8c6cec632f4e2 # v6.1

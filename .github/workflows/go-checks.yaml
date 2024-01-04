@@ -2,10 +2,11 @@ name: Checks for golang issues
 
 on: 
   workflow_call:
-
-concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
-  cancel-in-progress: true
+    inputs:
+      go-version:
+        type: string
+        required: false
+        description: "Optional golang version"
 
 jobs:
   security:
@@ -17,9 +18,9 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        uses: exzeo-devops/action-workflows/.github/actions/go-install@main
         with:
-          go-version-file: .go-version
+          version: ${{ inputs.go-version }}
 
       - name: Install required dependencies
         shell: bash
@@ -49,9 +50,9 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        uses: exzeo-devops/action-workflows/.github/actions/go-install@main
         with:
-          go-version-file: .go-version
+          version: ${{ inputs.go-version }}
 
       - name: Install dependencies
         run: make init
@@ -88,9 +89,9 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        uses: exzeo-devops/action-workflows/.github/actions/go-install@main
         with:
-          go-version-file: .go-version
+          version: ${{ inputs.go-version }}
      
       - name: Check go.mod and go.sum tidiness
         run: |
