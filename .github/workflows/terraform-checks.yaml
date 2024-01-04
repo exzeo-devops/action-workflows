@@ -111,4 +111,4 @@ jobs:
           fi
           
       - uses: exzeo-devops/action-workflows/.github/actions/action-failure-notification@main
-        if: ${{ github.ref == 'refs/heads/main' }}          
+        if: ${{ github.ref == 'refs/heads/main' }}
