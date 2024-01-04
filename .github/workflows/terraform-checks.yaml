@@ -11,10 +11,6 @@ on:
       TERRAFORM_API_TOKEN:
         required: true
 
-concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
-  cancel-in-progress: true
-
 jobs:  
   list-workspaces:
     name: "Lookup workspaces"
@@ -66,42 +62,32 @@ jobs:
         continue-on-error: true
         working-directory: "${{ inputs.terraform-path }}/workspaces/${{ matrix.workspace }}"
 
-      - uses: actions/github-script@v6
+      - name: Add PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
         if: github.event_name == 'pull_request'
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+          hide_and_recreate: true
+          hide_classify: "OUTDATED"
+          message: |
+            #### Terraform Initialization ⚙️`${{ steps.init.outcome }}`
+            #### Terraform Validation 🤖`${{ steps.validate.outcome }}`
             <details><summary>Validation Output</summary>
 
-            \`\`\`\n
-            ${{ steps.validate.outputs.stdout }}
-            \`\`\`
+            ```${{ steps.validate.outputs.stdout }}```
 
             </details>
 
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Plan 📖`${{ steps.plan.outcome }}`
 
             <details><summary>Show Plan</summary>
 
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
+            ```${{ steps.plan.outputs.stdout }}```
 
             </details>
 
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workspace: \`${{ matrix.workspace }}\`, Workflow: \`${{ github.workflow }}\`*`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+            *Pusher: @${{ github.actor }}*
+            *Action: ${{ github.event_name }}*
+            *Workspace: ${{ matrix.workspace }}*
 
   lint:
     name: "Runs best practices"
