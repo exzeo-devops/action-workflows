@@ -42,7 +42,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
         with:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_API_TOKEN }}
 
@@ -63,7 +63,7 @@ jobs:
         working-directory: "${{ inputs.terraform-path }}/workspaces/${{ matrix.workspace }}"
 
       - name: Add PR comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@efaaab3fd41a9c3de579aba759d2552635e590fd # v2.8.0
         if: github.event_name == 'pull_request'
         with:
           hide_and_recreate: true
