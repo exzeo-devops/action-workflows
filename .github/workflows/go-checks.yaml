@@ -39,7 +39,10 @@ jobs:
 
       - name: Run govulncheck (Golang CLI issues)
         shell: bash
-        run: govulncheck ./...          
+        run: govulncheck ./...        
+
+      - uses: exzeo-devops/action-workflows/.github/actions/action-failure-notification@main
+        if: ${{ github.ref == 'refs/heads/main' }}
 
   test:
     name: "Runs golang testing"
@@ -80,6 +83,9 @@ jobs:
             report.xml            
         if: always()
 
+      - uses: exzeo-devops/action-workflows/.github/actions/action-failure-notification@main
+        if: ${{ github.ref == 'refs/heads/main' }}
+
   lint:
     name: "Runs best practices"
     runs-on: ubuntu-latest
@@ -100,3 +106,6 @@ jobs:
             echo "Need to run 'go mod tidy'";
             exit 1;
           fi
+
+      - uses: exzeo-devops/action-workflows/.github/actions/action-failure-notification@main
+        if: ${{ github.ref == 'refs/heads/main' }}
